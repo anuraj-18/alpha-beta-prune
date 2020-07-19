@@ -1,31 +1,35 @@
 import numpy as np
 import random
+import pdb
+
+#pdb.set_trace()
 
 MIN = 0
 MAX = 1
 
-MINVAL = 10000
-MAXVAL = -10000
+INF = 10000
+NINF = -10000
 
 class Node:
     def __init__(self, parent, m):
-        self.val = MAXVAL
-        self.alpha = MAXVAL
-        self.beta = MINVAL
+        self.val = NINF
+        self.alpha = NINF
+        self.beta = INF
         self.children = []
         self.agent = m
         self.parent = parent
 
     def resetValues(self):
-    	self.val = MAXVAL
-    	self.alpha = MAXVAL
-    	self.beta = MINVAL
+    	self.val = NINF
+    	self.alpha = NINF
+    	self.beta = INF
     	self.children = []
     	self.agent = MAX
     	self.parent = None
+    	self.ind = 0
 
     def evaluate(self):
-    	self.val = random.randint(1, 20)
+    	self.val = random.randint(0, 20)
 
 class GameTree:
 	def __init__(self, root):
@@ -34,12 +38,12 @@ class GameTree:
 	def getOptimumValue(self, dep):
 		depth = 0
 		k = dep
-		bf = 2
-		newVal = MAXVAL
-		self.root.resetValues()
+		bf = 5
+		newVal = NINF
+		# self.root.resetValues()
 		curr = self.root
-
-		while self.root.val == MAXVAL:
+		bestIndArr = []
+		while self.root.val == NINF:
 			if depth == k:
 				curr.evaluate()
 				newVal = curr.val
@@ -47,18 +51,21 @@ class GameTree:
 				curr = curr.parent
 				continue
 
-			if newVal > MAXVAL:
+			if newVal > NINF:
 				if curr.agent == MIN:
-					if newVal < curr.beta and len(curr.children) > 1:
-						curr.beta = newVal
-					elif len(curr.children) == 1:
+					if (newVal < curr.beta and len(curr.children) > 1) or len(curr.children) == 1:
 						curr.beta = newVal
 				else:
-					if newVal > curr.alpha and len(curr.children) > 1:
+					if (newVal >= curr.alpha and len(curr.children) > 1) or len(curr.children) == 1:
+						if curr == self.root:
+							if curr.alpha < newVal:
+								bestIndArr = []
+								bestIndArr.append(len(curr.children) - 1)
+							if curr.alpha == newVal:
+								bestIndArr.append(len(curr.children) - 1)
 						curr.alpha = newVal
-					elif len(curr.children) == 1:
-						curr.alpha = newVal
-				newVal = MAXVAL
+						
+				newVal = NINF
 
 			if curr.alpha >= curr.beta:
 				if curr.agent == MIN:
@@ -84,11 +91,14 @@ class GameTree:
 					newVal = curr.val
 					curr = curr.parent; depth -= 1
 
-		print(root.val)
+		return self.root.val, bestIndArr
+
 
 root = Node(None, MAX)
+
 gt = GameTree(root)
 
-gt.getOptimumValue(3)
+print(gt.getOptimumValue(3))
+
 
 
