@@ -38,11 +38,13 @@ class GameTree:
 	def getOptimumValue(self, dep):
 		depth = 0
 		k = dep
-		bf = 5
+		bf = 25
 		newVal = NINF
 		# self.root.resetValues()
 		curr = self.root
 		bestIndArr = []
+		pruneCount = 0
+
 		while self.root.val == NINF:
 			if depth == k:
 				curr.evaluate()
@@ -68,6 +70,8 @@ class GameTree:
 				newVal = NINF
 
 			if curr.alpha >= curr.beta:
+				pruneCount += 1
+
 				if curr.agent == MIN:
 					curr.val = curr.beta
 				else:
@@ -91,14 +95,13 @@ class GameTree:
 					newVal = curr.val
 					curr = curr.parent; depth -= 1
 
-		return self.root.val, bestIndArr
-
+		return self.root.val, bestIndArr, pruneCount, [i.val for i in self.root.children]
 
 root = Node(None, MAX)
 
 gt = GameTree(root)
 
-print(gt.getOptimumValue(3))
+print(gt.getOptimumValue(6))
 
 
 
